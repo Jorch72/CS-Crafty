@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Craft.Net.Client.Events;
+using Ionic.Zip;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
@@ -36,8 +38,10 @@ namespace Crafty
             GL.ClearColor(Color.CornflowerBlue);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Texture2D);
             GL.EnableClientState(ArrayCap.VertexArray);
-            GL.EnableClientState(ArrayCap.ColorArray);
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+            Textures.LoadTerrainTextures();
             Title = "Crafty";
         }
 
@@ -54,15 +58,8 @@ namespace Crafty
             
         }
 
-        float[] cubeColors = {
-			1, 0, 0, 1,
-			1, 0, 0, 1,
-			1, 0, 0, 1,
-			1, 0, 0, 1,
-			1, 0, 0, 1,
-			1, 0, 0, 1,
-			1, 0, 0, 1,
-			1, 0, 0, 1
+        float[] texCoords = {
+			0.125f, 0, 0.0625f, 0, 0.0625f, 0.0625f, 0.125f, 0.0625f
 		};
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -76,7 +73,8 @@ namespace Crafty
             GL.LoadMatrix(ref matrixModelview);
 
             GL.VertexPointer(3, VertexPointerType.Float, 0, Models.CubeVerticies);
-            GL.ColorPointer(4, ColorPointerType.Float, 0, cubeColors);
+            GL.BindTexture(TextureTarget.Texture2D, Textures.TerrainId);
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, 0, texCoords);
             GL.DrawElements(BeginMode.Triangles, Models.CubeIndicies.Length, DrawElementsType.UnsignedByte, Models.CubeIndicies);
 
             SwapBuffers();
