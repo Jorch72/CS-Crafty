@@ -1,0 +1,15 @@
+bin/
+obj/
+*.user
+*.userprefs
+*.suo
+*.pidb
+_ReSharper*/
+TestResults/
+*.mdf
+merged/
+Craft.Net.Server.dll
+Craft.Net.Server.pdb
+*.psess
+*.vsp
+externals/libnbt/
