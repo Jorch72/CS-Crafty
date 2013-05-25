@@ -20,6 +20,8 @@ namespace Crafty
         public MinecraftClient Client { get; set; }
         public DateTime StartTime { get; set; }
 
+        private uint[] VBOid { get; set; }
+
         public MainWindow(MinecraftClient client)
         {
             Client = client;
@@ -43,6 +45,13 @@ namespace Crafty
             GL.EnableClientState(ArrayCap.TextureCoordArray);
             Textures.LoadTerrainTextures();
             Title = "Crafty";
+            // Load test vertex buffer
+            VBOid = new uint[2];
+            GL.GenBuffers(2, VBOid);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBOid[1]);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(Models.CubeIndicies.Length * sizeof(byte)), Models.CubeIndicies, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid[0]);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Models.CubeVerticies.Length * sizeof(float)), Models.CubeVerticies, BufferUsageHint.StaticDraw);
         }
 
         protected override void OnResize(EventArgs e)
@@ -58,10 +67,6 @@ namespace Crafty
             
         }
 
-        float[] texCoords = {
-			0.125f, 0, 0.0625f, 0, 0.0625f, 0.0625f, 0.125f, 0.0625f
-		};
-
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -72,10 +77,8 @@ namespace Crafty
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref matrixModelview);
 
-            GL.VertexPointer(3, VertexPointerType.Float, 0, Models.CubeVerticies);
-            GL.BindTexture(TextureTarget.Texture2D, Textures.TerrainId);
-            GL.TexCoordPointer(2, TexCoordPointerType.Float, 0, texCoords);
-            GL.DrawElements(BeginMode.Triangles, Models.CubeIndicies.Length, DrawElementsType.UnsignedByte, Models.CubeIndicies);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBOid[1]);
+            GL.DrawArrays(BeginMode.Triangles, 0, Models.CubeIndicies.Length);
 
             SwapBuffers();
         }
